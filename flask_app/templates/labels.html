@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Classification</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        .highlight {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex flex-column align-items-center justify-content-center vh-100">
+        <h1 class="mb-4">Audio Classification</h1>
+        <button id="record" class="btn btn-primary mb-4">Record Audio</button>
+        <ul id="labels" class="list-group">
+            <li class="label list-group-item">ddyo</li>
+            <li class="label list-group-item">emabega</li>
+            <li class="label list-group-item">gaali</li>
+            <li class="label list-group-item">kkono</li>
+            <li class="label list-group-item">mumaaso</li>
+            <li class="label list-group-item">unknown</li>
+            <li class="label list-group-item">yimirira</li>
+        </ul>
+    </div>
+    
+    <script>
+      $(document).ready(function () {
+        $("#record").click(function () {
+          $.ajax({
+            url: "/predict",
+            type: "POST",
+            success: function (response) {
+              $(".label").removeClass("highlight");
+              $("li:contains(" + response.prediction + ")").addClass(
+                "highlight"
+              );
+            },
+            error: function (error) {
+              console.log(error);
+            },
+          });
+        });
+      });
+
+      const audioContext = new AudioContext();
+      const processor = audioContext.createScriptProcessor(1024, 1, 1);
+
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        const source = audioContext.createMediaStreamSource(stream);
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+        processor.onaudioprocess = function (e) {
+          const audioData = e.inputBuffer.getChannelData(0);
+          fetch("/process_audio", {
+            method: "POST",
+            body: JSON.stringify(Array.from(audioData)),
+            headers: { "Content-Type": "application/json" },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.wake_word_detected) {
+                // The wake word was detected, start recording and make a prediction
+                console.log("Wake word detected!");
+                $("#record").click();
+              }
+            });
+        };
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Audio Classification</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  </head>
+  <body>
+    <div
+      class="container d-flex flex-column align-items-center justify-content-center vh-100"
+    >
+      <h1 class="mb-4">Say Gaali</h1>
+      <button id="record" class="btn btn-primary">Record Audio</button>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        $("#record").click(function () {
+          $.ajax({
+            url: "/predict",
+            type: "POST",
+            success: function (response) {
+              if (response.prediction === "gaali") {
+                window.location.href = "/labels";
+              }
+            },
+            error: function (error) {
+              console.log(error);
+            },
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

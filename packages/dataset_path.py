@@ -1,4 +1,4 @@
-import pathlib
+from packages.common_packages import pathlib
 
 # File paths for the speech classification dataset
 aug_train_data_dir = pathlib.Path('Dataset/speech_intent_classification/New_Train')
@@ -17,12 +17,22 @@ ww_test_data_needs_preprocessing = pathlib.Path('Dataset/wake_word/Test_need_pre
 
 
 # File path for sic CSV files
+sic_aug_train_csv_dir = pathlib.Path('files/sic_aug_train.csv')
 sic_train_csv_dir = pathlib.Path('files/sic_train.csv')
 sic_test_csv_dir = pathlib.Path('files/sic_test.csv')
-sic_aug_train_csv_dir = pathlib.Path('files/sic_aug_train.csv')
 
 
 # File path for the wake word files
+ww_aug_train_csv_dir = pathlib.Path('files/ww_aug_train.csv')
 ww_train_csv_dir = pathlib.Path('files/ww_train.csv')
 ww_test_csv_dir = pathlib.Path('files/ww_test.csv')
-ww_aug_train_csv_dir = pathlib.Path('files/ww_aug_train.csv')
+
+
+# Mfcc json files
+aug_train_json = pathlib.path('json/mfcc_aug_train_data.json')
+train_json = pathlib.path('json/mfcc_train_data.json')
+test_json = pathlib.patj('json/mfcc_test_data.json')
+
+ww_aug_train_json = pathlib.path('json/ww_mfcc_aug_train_data.json')
+ww_train_json = pathlib.path('json/ww_mfcc_train_data.json')
+ww_test_json = pathlib.patj('json/ww_mfcc_test_data.json')
