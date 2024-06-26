@@ -20,3 +20,22 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+# Environment variable files
+.env
+.env.local
+.env.*.local
+# Logs
+*.log
+# Databases
+*.sqlite3
+# Backup and temporary files
+*~
+*.swp
+*.tmp
+# Keys and credentials
+*.pem
+*.key
+
+# Ignore Python bytecode files
+*.pyc
+__pycache__/

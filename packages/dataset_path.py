@@ -1,4 +1,4 @@
-from common_packages import pathlib
+from packages.common_packages import pathlib
 
 # File paths for the speech classification dataset
 aug_train_data_dir = pathlib.Path('Dataset/speech_intent_classification/New_Train')

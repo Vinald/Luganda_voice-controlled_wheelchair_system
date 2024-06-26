@@ -2,6 +2,12 @@
 
 This project is a voice-controlled wheelchair system that uses Luganda language commands. The following are the commands and statements used for data collection.
 
+# How to run the code
+- `Create a virtual environment`
+- `Run the requirements.txt file`
+- `Run the mfcc_extraction file in packages to extract mfccs and create json files`
+
+
 ## Commands
 - `mu masso`: Moves the wheelchair forward
 - `emabega`: Moves the wheelchair backward
