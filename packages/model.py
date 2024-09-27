@@ -1,24 +1,23 @@
 from packages.common_packages import tf, layers, models, EarlyStopping, plt, f1_score, sns, precision_score, recall_score
-from packages.common_packages import Epochs, patience, learning_rate
-
-
+from packages.common_packages import EPOCHS, PATIENCE, LEARNING_RATE
 
 # --------------------------------------------------------------------
 # Model 1
 # --------------------------------------------------------------------
+
+
 def model(input_shape, num_labels):
     model = models.Sequential([
         layers.Input(shape=input_shape),
-        layers.Conv2D(16, 3, activation='relu', padding='same'),
-        layers.MaxPooling2D(),
-        layers.Conv2D(32, 3, activation='relu', padding='same'),
-        layers.MaxPooling2D(),
-        layers.Conv2D(64, 3, activation='relu', padding='same'),
-        layers.MaxPooling2D(),
-        layers.Conv2D(128, 3, activation='relu', padding='same'),
-        layers.GlobalMaxPooling2D(),
-        layers.Dense(128, activation='relu'),
-        layers.Dropout(0.5),
+        layers.Conv2D(16, 3, activation='relu',
+                      padding='same'), layers.MaxPooling2D(),
+        layers.Conv2D(32, 3, activation='relu',
+                      padding='same'), layers.MaxPooling2D(),
+        layers.Conv2D(64, 3, activation='relu',
+                      padding='same'), layers.MaxPooling2D(),
+        layers.Conv2D(128, 3, activation='relu',
+                      padding='same'), layers.GlobalMaxPooling2D(),
+        layers.Dense(128, activation='relu'), layers.Dropout(0.5),
         layers.Dense(num_labels, activation='softmax')
     ])
     return model
@@ -71,20 +70,24 @@ def model3(input_shape, num_labels):
 # --------------------------------------------------------------------
 # Function to compile and train the model
 # --------------------------------------------------------------------
-optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
 
 
-def compile_and_train_model(model, train_ds, val_ds, learning_rate=learning_rate):
+def compile_and_train_model(model, train_ds, val_ds, learning_rate=LEARNING_RATE):
     try:
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
-        early_stopping = EarlyStopping(monitor='val_loss', patience=patience, restore_best_weights=True)
-        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=patience, min_lr=1e-6)
-        history = model.fit(train_ds, validation_data=val_ds, epochs=Epochs, callbacks=[early_stopping, reduce_lr])
+        early_stopping = EarlyStopping(
+            monitor='val_loss', patience=PATIENCE, restore_best_weights=True)
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+            monitor='val_loss', factor=0.1, patience=PATIENCE, min_lr=1e-6)
+        history = model.fit(train_ds, validation_data=val_ds,
+                            epochs=EPOCHS, callbacks=[early_stopping, reduce_lr])
         return history
     except Exception as e:
-        print(f"An error occurred during model compilation and training: {str(e)}")
+        print(
+            f"An error occurred during model compilation and training: {str(e)}")
 
 
 # --------------------------------------------------------------------
@@ -119,7 +122,8 @@ def plot_training_history(history):
         plt.tight_layout()
         plt.show()
     except Exception as e:
-        print(f"An error occurred during plotting the training history: {str(e)}")
+        print(
+            f"An error occurred during plotting the training history: {str(e)}")
 
 
 # --------------------------------------------------------------------
@@ -135,13 +139,15 @@ def evaluate_model(model, test_ds):
             y_pred.extend(tf.argmax(predictions, axis=1).numpy())
 
         loss, accuracy = model.evaluate(test_ds, verbose=0)
-        precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
-        recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
+        precision = precision_score(
+            y_true, y_pred, average='weighted', zero_division=0)
+        recall = recall_score(
+            y_true, y_pred, average='weighted', zero_division=0)
         f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
 
         print(f"Test accuracy:      {int(accuracy * 100)}%")
         print(f"Test loss:          {loss}")
-        print(f"Precision:          {precision}") 
+        print(f"Precision:          {precision}")
         print(f"Recall:             {recall}")
         print(f"F1-score:           {f1}")
     except Exception as e:
@@ -164,4 +170,5 @@ def plot_confusion_matrix(y_true, y_pred, label_names):
         plt.title('Confusion Matrix')
         plt.show()
     except Exception as e:
-        print(f"An error occurred during plotting the confusion matrix: {str(e)}")
+        print(
+            f"An error occurred during plotting the confusion matrix: {str(e)}")

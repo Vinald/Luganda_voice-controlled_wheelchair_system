@@ -15,7 +15,7 @@ def main():
 def record_audio_and_save(filename='output.wav',
                           duration=DURATION,
                           sample_rate=SAMPLE_RATE, channels=CHANNEL):
-    chunk = CHUNK  
+    chunk = CHUNK
     sample_format = pyaudio.paInt16
     p = pyaudio.PyAudio()
 
@@ -55,7 +55,8 @@ def record_audio_and_save(filename='output.wav',
 def record_audio(duration, fs=SAMPLE_RATE, channels=CHANNEL, format=pyaudio.paInt16):
     audio = pyaudio.PyAudio()
 
-    stream = audio.open(format=format, channels=channels, rate=fs, input=True, frames_per_buffer=CHUNK)
+    stream = audio.open(format=format, channels=channels,
+                        rate=fs, input=True, frames_per_buffer=CHUNK)
 
     print("Recording started...")
     frames = []

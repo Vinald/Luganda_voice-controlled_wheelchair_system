@@ -27,7 +27,7 @@ def create_train_val_audio_dataset(data_dir, batch_size=BATCH_SIZE, validation_s
     for example_audio, example_labels in train_ds.take(1):
         print(f'Audio Shape: {example_audio.shape}')
         print(f'Label Shape: {example_labels.shape}')
-    
+
     train_ds = train_ds.cache().prefetch(tf.data.AUTOTUNE)
     val_ds = val_ds.cache().prefetch(tf.data.AUTOTUNE)
 
@@ -67,7 +67,8 @@ def create_test_audio_dataset(data_dir, batch_size=BATCH_SIZE, output_sequence_l
 # ---------------------------------------------------------------------------
 def preprocess_melspec_audio_datasets(train_ds, val_ds, test_ds):
     def get_mel_spectrogram(waveform, sample_rate=SAMPLE_RATE, n_mels=N_MELS):
-        stft = tf.signal.stft(waveform, frame_length=FRAME_LENGTH, frame_step=FRAME_STEP)
+        stft = tf.signal.stft(
+            waveform, frame_length=FRAME_LENGTH, frame_step=FRAME_STEP)
         spectrogram = tf.abs(stft)
         mel_spectrogram = tf.signal.linear_to_mel_weight_matrix(
             num_mel_bins=n_mels,
@@ -87,7 +88,8 @@ def preprocess_melspec_audio_datasets(train_ds, val_ds, test_ds):
     val_mel_spec_ds = make_mel_spec_ds(val_ds)
     test_mel_spec_ds = make_mel_spec_ds(test_ds)
 
-    train_mel_spec_ds = train_mel_spec_ds.cache().shuffle(10000).prefetch(tf.data.AUTOTUNE)
+    train_mel_spec_ds = train_mel_spec_ds.cache().shuffle(
+        10000).prefetch(tf.data.AUTOTUNE)
     val_mel_spec_ds = val_mel_spec_ds.cache().prefetch(tf.data.AUTOTUNE)
     test_mel_spec_ds = test_mel_spec_ds.cache().prefetch(tf.data.AUTOTUNE)
 
