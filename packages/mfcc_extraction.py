@@ -1,25 +1,4 @@
-from common_packages import os, librosa, json, math, pathlib
-from common_packages import N_MFCC, N_FFT, HOP_LENGTH, SAMPLE_RATE, SAMPLES_PER_AUDIO
-
-# File paths for the speech classification dataset
-aug_train_data_dir = pathlib.Path('Dataset/speech_intent_classification/New_Train')
-train_data_dir = pathlib.Path('Dataset/speech_intent_classification/Train')
-test_data_dir = pathlib.Path('Dataset/speech_intent_classification/Test')
-
-# File Path for the wake word model
-ww_aug_train_data_dir = pathlib.Path('Dataset/wake_word/New_Train')
-ww_train_data_dir = pathlib.Path('Dataset/wake_word/Train')
-ww_test_data_dir = pathlib.Path('Dataset/wake_word/Test')
-
-# Mfcc json files
-aug_train_json = pathlib.Path('json/mfcc_aug_train_data.json')
-train_json = pathlib.Path('json/mfcc_train_data.json')
-test_json = pathlib.Path('json/mfcc_test_data.json')
-
-ww_aug_train_json = pathlib.Path('json/ww_mfcc_aug_train_data.json')
-ww_train_json = pathlib.Path('json/ww_mfcc_train_data.json')
-ww_test_json = pathlib.Path('json/ww_mfcc_test_data.json')
-
+from packages.utils import *
 
 def main():
     prepare_dataset(aug_train_data_dir, aug_train_json)
@@ -83,4 +62,5 @@ def prepare_dataset(dataset_path, json_path, num_mfcc=N_MFCC, n_fft=N_FFT, hop_l
     return data
 
 if __name__ == '__main__':
-    main()
+    # main()
+    ...

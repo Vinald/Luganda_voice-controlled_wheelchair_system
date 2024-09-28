@@ -1,4 +1,4 @@
-from packages.common_packages import tf, np, precision_score, accuracy_score, recall_score, f1_score, plt, sns
+from packages.utils import tf, np, precision_score, accuracy_score, recall_score, f1_score, plt, sns
 
 
 # For a TFLite model

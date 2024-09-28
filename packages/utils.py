@@ -78,7 +78,7 @@ test_data_needs_preprocessing = pathlib.Path(
     'Dataset/speech_intent_classification/Test_need_preprocessing')
 
 # ----------------------------------------------------
-# File Path for the wake word model
+# File Path for the wake word dataset
 ww_aug_train_data_dir = pathlib.Path('Dataset/wake_word/New_Train')
 ww_train_data_dir = pathlib.Path('Dataset/wake_word/Train')
 ww_test_data_dir = pathlib.Path('Dataset/wake_word/Test')
@@ -94,7 +94,7 @@ sic_train_csv_dir = pathlib.Path('Dataset/csv_files/sic_train.csv')
 sic_test_csv_dir = pathlib.Path('Dataset/csv_files/sic_test.csv')
 
 # ----------------------------------------------------
-# File path for the wake word files
+# File path for the CSV of the wake word files
 ww_aug_train_csv_dir = pathlib.Path('Dataset/csv_files/ww_aug_train.csv')
 ww_train_csv_dir = pathlib.Path('Dataset/csv_files/ww_train.csv')
 ww_test_csv_dir = pathlib.Path('Dataset/csv_files/ww_test.csv')
@@ -108,26 +108,3 @@ test_json = pathlib.Path('json/mfcc_test_data.json')
 ww_aug_train_json = pathlib.Path('json/ww_mfcc_aug_train_data.json')
 ww_train_json = pathlib.Path('json/ww_mfcc_train_data.json')
 ww_test_json = pathlib.Path('json/ww_mfcc_test_data.json')
-
-# ---------------------------------------------------------------------------
-# Function to print the directory  labels
-# ---------------------------------------------------------------------------
-
-
-def list_directory_contents(directory, label):
-    contents = np.array(tf.io.gfile.listdir(str(directory)))
-    print(f'{label} commands labels: {contents}')
-    return contents
-
-
-# ---------------------------------------------------------------------------
-# Function to get the Model size in KB or MB
-# ---------------------------------------------------------------------------
-def get_and_convert_file_size(file_path, unit=None):
-    size = os.path.getsize(file_path)
-    if unit == "KB":
-        return print('File size: ' + str(round(size / 1024, 3)) + ' Kilobytes')
-    elif unit == "MB":
-        return print('File size: ' + str(round(size / (1024 * 1024), 3)) + ' Megabytes')
-    else:
-        return print('File size: ' + str(size) + ' bytes')

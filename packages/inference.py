@@ -1,5 +1,5 @@
-from common_packages import wave, pyaudio, os, librosa, Audio, display, tf
-from common_packages import FRAME_LENGTH,  SAMPLE_RATE, CHANNEL, CHUNK_SIZE, RECORDING_DURATION, FRAME_STEP, N_MELS
+from utils import wave, pyaudio, os, librosa, Audio, display, tf
+from utils import FRAME_LENGTH,  SAMPLE_RATE, CHANNEL, CHUNK_SIZE, RECORDING_DURATION, FRAME_STEP, N_MELS
 
 
 # Get Mel-spectrogram

@@ -1,11 +1,9 @@
-from packages.common_packages import tf, layers, models, EarlyStopping, plt, f1_score, sns, precision_score, recall_score
-from packages.common_packages import EPOCHS, PATIENCE, LEARNING_RATE
+from packages.utils import os, tf, layers, models, EarlyStopping, plt, f1_score, sns, precision_score, recall_score
+from packages.utils import EPOCHS, PATIENCE, LEARNING_RATE
+
 
 # --------------------------------------------------------------------
 # Model 1
-# --------------------------------------------------------------------
-
-
 def model(input_shape, num_labels):
     model = models.Sequential([
         layers.Input(shape=input_shape),
@@ -25,7 +23,6 @@ def model(input_shape, num_labels):
 
 # --------------------------------------------------------------------
 # Model 2
-# --------------------------------------------------------------------
 def model2(input_shape, num_labels):
     model = models.Sequential([
         layers.Input(shape=input_shape),
@@ -48,7 +45,6 @@ def model2(input_shape, num_labels):
 
 # --------------------------------------------------------------------
 # Model 3
-# --------------------------------------------------------------------
 def model3(input_shape, num_labels):
     model = models.Sequential([
         layers.Input(shape=input_shape),
@@ -69,12 +65,26 @@ def model3(input_shape, num_labels):
 
 # --------------------------------------------------------------------
 # Function to compile and train the model
-# --------------------------------------------------------------------
 optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
 
 
 def compile_and_train_model(model, train_ds, val_ds, learning_rate=LEARNING_RATE):
+    """
+    This function compiles and trains a given model using the provided training and validation datasets.
+
+    Parameters:
+    - model: The Keras model to be trained.
+    - train_ds: The training dataset. It should be a TensorFlow Dataset object containing audio data and corresponding labels.
+    - val_ds: The validation dataset. It should be a TensorFlow Dataset object containing audio data and corresponding labels.
+    - learning_rate (optional): The learning rate for the optimizer. Default value is defined by the LEARNING_RATE constant.
+
+    Returns:
+    - history: The history object returned by the model.fit method, which contains the training and validation loss and accuracy for each epoch.
+
+    Raises:
+    - Exception: If an error occurs during model compilation and training, it will be caught and printed.
+    """
     try:
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
@@ -91,9 +101,60 @@ def compile_and_train_model(model, train_ds, val_ds, learning_rate=LEARNING_RATE
 
 
 # --------------------------------------------------------------------
-# Function to plot the training history
+# Function to evaluate the model on the test dataset
+def evaluate_model(model, test_ds):
+    """
+    Evaluates a trained model on a test dataset and prints the evaluation metrics.
+
+    Parameters:
+    - model: A trained Keras model to be evaluated.
+    - test_ds: A TensorFlow Dataset object containing the test audio data and corresponding labels.
+
+    Returns:
+    - None. The function prints the test accuracy, loss, precision, recall, and F1-score.
+
+    Raises:
+    - Exception: If an error occurs during model evaluation, it will be caught and printed.
+    """
+    try:
+        y_true = []
+        y_pred = []
+        for audio, labels in test_ds:
+            predictions = model.predict(audio, verbose=0)
+            y_true.extend(labels.numpy())
+            y_pred.extend(tf.argmax(predictions, axis=1).numpy())
+
+        loss, accuracy = model.evaluate(test_ds, verbose=0)
+        precision = precision_score(
+            y_true, y_pred, average='weighted', zero_division=0)
+        recall = recall_score(
+            y_true, y_pred, average='weighted', zero_division=0)
+        f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
+
+        print(f"Test accuracy:      {int(accuracy * 100)}%")
+        print(f"Test loss:          {loss}")
+        print(f"Precision:          {precision}")
+        print(f"Recall:             {recall}")
+        print(f"F1-score:           {f1}")
+    except Exception as e:
+        print(f"An error occurred during model evaluation: {str(e)}")
+
+
 # --------------------------------------------------------------------
+# Function to plot the training history
 def plot_training_history(history):
+    """
+    This function plots the training and validation accuracy and loss for a given Keras model's training history.
+
+    Parameters:
+    - history: A TensorFlow History object returned by the model.fit method. It contains the training and validation loss and accuracy for each epoch.
+
+    Returns:
+    - None. The function generates a plot displaying the training and validation accuracy and loss over epochs.
+
+    Raises:
+    - Exception: If an error occurs during the plot generation, it will be caught and printed.
+    """
     try:
         acc = history.history['accuracy']
         val_acc = history.history['val_accuracy']
@@ -127,37 +188,22 @@ def plot_training_history(history):
 
 
 # --------------------------------------------------------------------
-# Function to evaluate the model on the test dataset
-# --------------------------------------------------------------------
-def evaluate_model(model, test_ds):
-    try:
-        y_true = []
-        y_pred = []
-        for audio, labels in test_ds:
-            predictions = model.predict(audio, verbose=0)
-            y_true.extend(labels.numpy())
-            y_pred.extend(tf.argmax(predictions, axis=1).numpy())
-
-        loss, accuracy = model.evaluate(test_ds, verbose=0)
-        precision = precision_score(
-            y_true, y_pred, average='weighted', zero_division=0)
-        recall = recall_score(
-            y_true, y_pred, average='weighted', zero_division=0)
-        f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
-
-        print(f"Test accuracy:      {int(accuracy * 100)}%")
-        print(f"Test loss:          {loss}")
-        print(f"Precision:          {precision}")
-        print(f"Recall:             {recall}")
-        print(f"F1-score:           {f1}")
-    except Exception as e:
-        print(f"An error occurred during model evaluation: {str(e)}")
-
-
-# --------------------------------------------------------------------
 # Function to plot the confusion matrix
-# --------------------------------------------------------------------
 def plot_confusion_matrix(y_true, y_pred, label_names):
+    """
+    Plots a confusion matrix using seaborn heatmap.
+
+    Parameters:
+    - y_true (numpy.ndarray): A 1D array containing the true labels of the samples.
+    - y_pred (numpy.ndarray): A 1D array containing the predicted labels of the samples.
+    - label_names (list): A list of strings representing the names of the classes.
+
+    Returns:
+    - None. The function generates a plot displaying the confusion matrix.
+
+    Raises:
+    - Exception: If an error occurs during the plot generation, it will be caught and printed.
+    """
     try:
         confusion_mtx = tf.math.confusion_matrix(y_true, y_pred)
         plt.figure(figsize=(8, 6))
@@ -172,3 +218,25 @@ def plot_confusion_matrix(y_true, y_pred, label_names):
     except Exception as e:
         print(
             f"An error occurred during plotting the confusion matrix: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# Function to get the Model size in KB or MB
+def get_and_convert_file_size(file_path, unit=None):
+    """
+    This function calculates and prints the size of a file in bytes, kilobytes, or megabytes.
+
+    Parameters:
+    - file_path (str): The path to the file for which the size needs to be calculated.
+    - unit (str, optional): The unit in which the size should be displayed. It can be either 'KB' or 'MB'. If not provided, the size will be displayed in bytes.
+
+    Returns:
+    - None: The function prints the size of the file in the specified unit.
+    """
+    size = os.path.getsize(file_path)
+    if unit == "KB":
+        print('File size: ' + str(round(size / 1024, 3)) + ' Kilobytes')
+    elif unit == "MB":
+        print('File size: ' + str(round(size / (1024 * 1024), 3)) + ' Megabytes')
+    else:
+        print('File size: ' + str(size) + ' bytes')
