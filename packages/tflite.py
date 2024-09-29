@@ -33,9 +33,11 @@ def run_and_evaluate_tflite_model(interpreter, test_mel_spec_ds, label_names):
     y_pred = []
 
     for mel_spectrogram, label in test_mel_spec_ds:
-        interpreter.set_tensor(interpreter.get_input_details()[0]['index'], mel_spectrogram)
+        interpreter.set_tensor(interpreter.get_input_details()[
+                               0]['index'], mel_spectrogram)
         interpreter.invoke()
-        output = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
+        output = interpreter.get_tensor(
+            interpreter.get_output_details()[0]['index'])
 
         y_true.append(label.numpy()[0])
         y_pred.append(np.argmax(output))
@@ -45,7 +47,8 @@ def run_and_evaluate_tflite_model(interpreter, test_mel_spec_ds, label_names):
 
     plot_confusion_matrix(y_true, y_pred, label_names)
 
-    precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
+    precision = precision_score(
+        y_true, y_pred, average='weighted', zero_division=0)
     recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
     f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
 
@@ -82,15 +85,18 @@ def evaluate_quantized_tflite_model(interpreter, test_ds, label_names):
     y_pred = []
 
     for mel_spectrogram, label in test_ds:
-        interpreter.set_tensor(interpreter.get_input_details()[0]['index'], mel_spectrogram)
+        interpreter.set_tensor(interpreter.get_input_details()[
+                               0]['index'], mel_spectrogram)
         interpreter.invoke()
-        output = interpreter.get_tensor(interpreter.get_output_details()[0]['index'])
+        output = interpreter.get_tensor(
+            interpreter.get_output_details()[0]['index'])
         predicted_label = tf.argmax(output, axis=1)[0]
         y_true.append(label.numpy()[0])
         y_pred.append(predicted_label.numpy())
 
     accuracy = accuracy_score(y_true, y_pred)
-    precision = precision_score(y_true, y_pred, average='weighted', zero_division=0)
+    precision = precision_score(
+        y_true, y_pred, average='weighted', zero_division=0)
     recall = recall_score(y_true, y_pred, average='weighted', zero_division=0)
     f1 = f1_score(y_true, y_pred, average='weighted', zero_division=0)
 

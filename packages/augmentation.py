@@ -1,5 +1,5 @@
-from packages.common_packages import librosa, os, sf, np
-from packages.dataset_path import aug_train_data_dir, train_data_dir, ww_aug_train_data_dir, ww_train_data_dir
+from packages.utils import librosa, os, sf, np
+from packages.utils import aug_train_data_dir, train_data_dir, ww_aug_train_data_dir, ww_train_data_dir
 
 
 def main():
@@ -8,7 +8,7 @@ def main():
 
 
 # ---------------------------------------------------------------------------
-# Function to add white noise and picth scaling
+# Function to add white noise and pitch scaling
 # ---------------------------------------------------------------------------
 def modify_audio(root_folder, destination_folder):
     # Create the destination directory if it doesn't exist

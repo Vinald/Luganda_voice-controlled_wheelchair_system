@@ -1,5 +1,6 @@
-from packages.utils import os, tf, layers, models, EarlyStopping, plt, f1_score, sns, precision_score, recall_score
-from packages.utils import EPOCHS, PATIENCE, LEARNING_RATE
+from packages.utils import os, tf, layers, models, EarlyStopping, plt, sns
+from packages.utils import f1_score, precision_score, recall_score
+from packages.utils import EPOCHS, PATIENCE, LEARNING_RATE, MIN_LR
 
 
 # --------------------------------------------------------------------
@@ -64,34 +65,36 @@ def model3(input_shape, num_labels):
 
 
 # --------------------------------------------------------------------
-# Function to compile and train the model
 optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
-loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
+loss_sic = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
+loss_ww = tf.keras.losses.BinaryCategoricalCrossentropy(from_logits=False)
 
 
-def compile_and_train_model(model, train_ds, val_ds, learning_rate=LEARNING_RATE):
-    """
-    This function compiles and trains a given model using the provided training and validation datasets.
-
-    Parameters:
-    - model: The Keras model to be trained.
-    - train_ds: The training dataset. It should be a TensorFlow Dataset object containing audio data and corresponding labels.
-    - val_ds: The validation dataset. It should be a TensorFlow Dataset object containing audio data and corresponding labels.
-    - learning_rate (optional): The learning rate for the optimizer. Default value is defined by the LEARNING_RATE constant.
-
-    Returns:
-    - history: The history object returned by the model.fit method, which contains the training and validation loss and accuracy for each epoch.
-
-    Raises:
-    - Exception: If an error occurs during model compilation and training, it will be caught and printed.
-    """
+# Function to compile and train the model
+def compile_and_train_model_sic(model, train_ds, val_ds, learning_rate=LEARNING_RATE):
     try:
         optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-        model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+        model.compile(optimizer=optimizer, loss=loss_sic, metrics=['accuracy'])
         early_stopping = EarlyStopping(
             monitor='val_loss', patience=PATIENCE, restore_best_weights=True)
         reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
-            monitor='val_loss', factor=0.1, patience=PATIENCE, min_lr=1e-6)
+            monitor='val_loss', factor=0.1, patience=PATIENCE, min_lr=MIN_LR)
+        history = model.fit(train_ds, validation_data=val_ds,
+                            epochs=EPOCHS, callbacks=[early_stopping, reduce_lr])
+        return history
+    except Exception as e:
+        print(
+            f"An error occurred during model compilation and training: {str(e)}")
+
+
+def compile_and_train_model_ww(model, train_ds, val_ds, learning_rate=LEARNING_RATE):
+    try:
+        optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+        model.compile(optimizer=optimizer, loss=loss_ww, metrics=['accuracy'])
+        early_stopping = EarlyStopping(
+            monitor='val_loss', patience=PATIENCE, restore_best_weights=True)
+        reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(
+            monitor='val_loss', factor=0.1, patience=PATIENCE, min_lr=MIN_LR)
         history = model.fit(train_ds, validation_data=val_ds,
                             epochs=EPOCHS, callbacks=[early_stopping, reduce_lr])
         return history
@@ -103,19 +106,6 @@ def compile_and_train_model(model, train_ds, val_ds, learning_rate=LEARNING_RATE
 # --------------------------------------------------------------------
 # Function to evaluate the model on the test dataset
 def evaluate_model(model, test_ds):
-    """
-    Evaluates a trained model on a test dataset and prints the evaluation metrics.
-
-    Parameters:
-    - model: A trained Keras model to be evaluated.
-    - test_ds: A TensorFlow Dataset object containing the test audio data and corresponding labels.
-
-    Returns:
-    - None. The function prints the test accuracy, loss, precision, recall, and F1-score.
-
-    Raises:
-    - Exception: If an error occurs during model evaluation, it will be caught and printed.
-    """
     try:
         y_true = []
         y_pred = []
@@ -143,18 +133,6 @@ def evaluate_model(model, test_ds):
 # --------------------------------------------------------------------
 # Function to plot the training history
 def plot_training_history(history):
-    """
-    This function plots the training and validation accuracy and loss for a given Keras model's training history.
-
-    Parameters:
-    - history: A TensorFlow History object returned by the model.fit method. It contains the training and validation loss and accuracy for each epoch.
-
-    Returns:
-    - None. The function generates a plot displaying the training and validation accuracy and loss over epochs.
-
-    Raises:
-    - Exception: If an error occurs during the plot generation, it will be caught and printed.
-    """
     try:
         acc = history.history['accuracy']
         val_acc = history.history['val_accuracy']
@@ -190,20 +168,6 @@ def plot_training_history(history):
 # --------------------------------------------------------------------
 # Function to plot the confusion matrix
 def plot_confusion_matrix(y_true, y_pred, label_names):
-    """
-    Plots a confusion matrix using seaborn heatmap.
-
-    Parameters:
-    - y_true (numpy.ndarray): A 1D array containing the true labels of the samples.
-    - y_pred (numpy.ndarray): A 1D array containing the predicted labels of the samples.
-    - label_names (list): A list of strings representing the names of the classes.
-
-    Returns:
-    - None. The function generates a plot displaying the confusion matrix.
-
-    Raises:
-    - Exception: If an error occurs during the plot generation, it will be caught and printed.
-    """
     try:
         confusion_mtx = tf.math.confusion_matrix(y_true, y_pred)
         plt.figure(figsize=(8, 6))
@@ -220,19 +184,9 @@ def plot_confusion_matrix(y_true, y_pred, label_names):
             f"An error occurred during plotting the confusion matrix: {str(e)}")
 
 
-# ---------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Function to get the Model size in KB or MB
-def get_and_convert_file_size(file_path, unit=None):
-    """
-    This function calculates and prints the size of a file in bytes, kilobytes, or megabytes.
-
-    Parameters:
-    - file_path (str): The path to the file for which the size needs to be calculated.
-    - unit (str, optional): The unit in which the size should be displayed. It can be either 'KB' or 'MB'. If not provided, the size will be displayed in bytes.
-
-    Returns:
-    - None: The function prints the size of the file in the specified unit.
-    """
+def get_model_size(file_path, unit=None):
     size = os.path.getsize(file_path)
     if unit == "KB":
         print('File size: ' + str(round(size / 1024, 3)) + ' Kilobytes')

@@ -1,10 +1,17 @@
-from packages.common_packages import tf, np
-from packages.common_packages import BATCH_SIZE, SAMPLE_RATE, SEED, VALIDATION_SPLIT, FRAME_LENGTH, FRAME_STEP, N_MELS
+from packages.utils import tf, np
+from packages.utils import BATCH_SIZE, SAMPLE_RATE, SEED, VALIDATION_SPLIT, FRAME_LENGTH, FRAME_STEP, N_MELS
+
+
+# --------------------------------------------------------------------
+# Function to print the Labels
+def list_directory_contents(directory, label):
+    contents = np.array(tf.io.gfile.listdir(str(directory)))
+    print(f'{label} commands labels: {contents}')
+    return contents
 
 
 # --------------------------------------------------------------------
 # Function to create train and validation audio datasets
-# --------------------------------------------------------------------
 def create_train_val_audio_dataset(data_dir, batch_size=BATCH_SIZE, validation_split=VALIDATION_SPLIT, seed=SEED, output_sequence_length=SAMPLE_RATE):
     train_ds, val_ds = tf.keras.utils.audio_dataset_from_directory(
         directory=data_dir,
@@ -36,7 +43,6 @@ def create_train_val_audio_dataset(data_dir, batch_size=BATCH_SIZE, validation_s
 
 # --------------------------------------------------------------------
 # Function to create test audio dataset
-# --------------------------------------------------------------------
 def create_test_audio_dataset(data_dir, batch_size=BATCH_SIZE, output_sequence_length=SAMPLE_RATE):
     test_ds = tf.keras.utils.audio_dataset_from_directory(
         directory=data_dir,
@@ -64,7 +70,6 @@ def create_test_audio_dataset(data_dir, batch_size=BATCH_SIZE, output_sequence_l
 
 # ---------------------------------------------------------------------------
 # Function to create mel spectrogram dataset
-# ---------------------------------------------------------------------------
 def preprocess_melspec_audio_datasets(train_ds, val_ds, test_ds):
     def get_mel_spectrogram(waveform, sample_rate=SAMPLE_RATE, n_mels=N_MELS):
         stft = tf.signal.stft(

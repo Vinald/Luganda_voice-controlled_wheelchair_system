@@ -25,8 +25,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import load_model
 from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, confusion_matrix
-
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, confusion_matrix, classification_report
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -52,6 +51,7 @@ SAMPLES_PER_AUDIO = SAMPLE_RATE * DURATION
 N_MFCC = 13
 HOP_LENGTH = 512
 N_FFT = 2048
+NUM_SEGMENTS = 5
 
 # ----------------------------------------------------
 # Parameters for model compiling and training
@@ -64,7 +64,7 @@ LEARNING_RATE = 0.001
 CHANNEL = 1
 RECORDING_DURATION = 3
 CHUNK_SIZE = 1024
-
+MIN_LR = 1e-6
 
 # ----------------------------------------------------
 # File paths for the speech classification dataset
@@ -108,3 +108,4 @@ test_json = pathlib.Path('json/mfcc_test_data.json')
 ww_aug_train_json = pathlib.Path('json/ww_mfcc_aug_train_data.json')
 ww_train_json = pathlib.Path('json/ww_mfcc_train_data.json')
 ww_test_json = pathlib.Path('json/ww_mfcc_test_data.json')
+
