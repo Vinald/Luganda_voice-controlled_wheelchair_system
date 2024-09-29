@@ -36,6 +36,8 @@ SEED = 42
 BATCH_SIZE = 32
 SAMPLE_RATE = 16000
 VALIDATION_SPLIT = 0.2
+DURATION = 2
+SAMPLES_PER_AUDIO = SAMPLE_RATE * DURATION
 
 # ----------------------------------------------------
 # Parameters for mel-spectrogram
@@ -43,28 +45,6 @@ FRAME_LENGTH = 255
 FRAME_STEP = 128
 N_MELS = 128
 
-DURATION = 2
-SAMPLES_PER_AUDIO = SAMPLE_RATE * DURATION
-
-# ----------------------------------------------------
-# Parameters for MFCCs
-N_MFCC = 13
-HOP_LENGTH = 512
-N_FFT = 2048
-NUM_SEGMENTS = 5
-
-# ----------------------------------------------------
-# Parameters for model compiling and training
-EPOCHS = 5
-PATIENCE = 10
-LEARNING_RATE = 0.001
-
-# ----------------------------------------------------
-# Parameters for recording an audio file for inference
-CHANNEL = 1
-RECORDING_DURATION = 3
-CHUNK_SIZE = 1024
-MIN_LR = 1e-6
 
 # ----------------------------------------------------
 # File paths for the speech classification dataset
@@ -108,4 +88,3 @@ test_json = pathlib.Path('json/mfcc_test_data.json')
 ww_aug_train_json = pathlib.Path('json/ww_mfcc_aug_train_data.json')
 ww_train_json = pathlib.Path('json/ww_mfcc_train_data.json')
 ww_test_json = pathlib.Path('json/ww_mfcc_test_data.json')
-

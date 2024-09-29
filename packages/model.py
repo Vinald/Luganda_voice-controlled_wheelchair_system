@@ -1,6 +1,12 @@
-from packages.utils import os, tf, layers, models, EarlyStopping, plt, sns
-from packages.utils import f1_score, precision_score, recall_score
-from packages.utils import EPOCHS, PATIENCE, LEARNING_RATE, MIN_LR
+from utils import os, tf, layers, models, EarlyStopping, plt, sns
+from utils import f1_score, precision_score, recall_score
+
+# ----------------------------------------------------
+# Parameters for model compiling and training
+EPOCHS = 5
+PATIENCE = 10
+LEARNING_RATE = 0.001
+MIN_LR = 1e-6
 
 
 # --------------------------------------------------------------------

@@ -1,19 +1,21 @@
-from packages.utils import *
+from packages.utils import json, tf, np, math, os, librosa
+from packages.utils import VALIDATION_SPLIT, BATCH_SIZE, SAMPLE_RATE, DURATION
+from packages.utils import aug_train_json, train_json, test_json, ww_aug_train_json, ww_train_json, ww_test_json
+from packages.utils import aug_train_data_dir, train_data_dir, test_data_dir, ww_aug_train_data_dir, ww_train_data_dir, ww_test_data_dir
 
 
-def main():
-    extract_mfcc(aug_train_data_dir, aug_train_json)
-    extract_mfcc(train_data_dir, train_json)
-    extract_mfcc(test_data_dir, test_json)
-
-    extract_mfcc(ww_aug_train_data_dir, ww_aug_train_json)
-    extract_mfcc(ww_train_data_dir, ww_train_json)
-    extract_mfcc(ww_test_data_dir, ww_test_json)
+# ----------------------------------------------------
+# Parameters for MFCCs
+N_MFCC = 13
+HOP_LENGTH = 512
+N_FFT = 2048
+NUM_SEGMENTS = 5
+SAMPLES_PER_AUDIO = SAMPLE_RATE * DURATION
 
 
 # ----------------------------------------------------------------
 # Function to load train and validation datasets
-def load_train_dataset(json_path, batch_size, validation_split=0.2):
+def load_train_json_dataset(json_path, batch_size=BATCH_SIZE, validation_split=VALIDATION_SPLIT):
     # Load MFCCs from JSON and create TensorFlow dataset
     with open(json_path, "r") as fp:
         data = json.load(fp)
@@ -36,7 +38,7 @@ def load_train_dataset(json_path, batch_size, validation_split=0.2):
 
 # ----------------------------------------------------------------
 # Function to load test dataset
-def load_test_dataset(json_path, batch_size):
+def load_test_json_dataset(json_path, batch_size=BATCH_SIZE):
     # Load MFCCs from JSON and create TensorFlow dataset
     with open(json_path, "r") as fp:
         data = json.load(fp)
@@ -54,7 +56,7 @@ def load_test_dataset(json_path, batch_size):
 
 # ----------------------------------------------------------------
 # Extract mfccs
-def extract_mfcc(dataset_path, json_path, num_mfcc=N_MFCC, n_fft=N_FFT, hop_length=HOP_LENGTH, num_segments=NUM_SEGMENTS):
+def extract_mfcc_create_json_file(dataset_path, json_path, num_mfcc=N_MFCC, n_fft=N_FFT, hop_length=HOP_LENGTH, num_segments=NUM_SEGMENTS):
     # Dictionary to store mapping, labels, and MFCCs
     data = {
         "mapping": [],
@@ -68,36 +70,38 @@ def extract_mfcc(dataset_path, json_path, num_mfcc=N_MFCC, n_fft=N_FFT, hop_leng
     # Loop through all sub-folders
     for i, (dirpath, dirnames, filenames) in enumerate(os.walk(dataset_path)):
         # Ensure we're processing the sub-folder level
-        if dirpath != dataset_path:
-            # Save genre label (i.e., sub-folder name) in the mapping
-            semantic_label = dirpath.split("/")[-1]
-            data["mapping"].append(semantic_label)
-            print(f"\nProcessing: {semantic_label}")
+        if dirpath == dataset_path:
+            continue  # Skip the root folder
 
-            # Process all audio files in genre sub-dir
-            for f in filenames:
-                # Load audio file
-                file_path = os.path.join(dirpath, f)
-                signal, sr = librosa.load(file_path, sr=SAMPLE_RATE)
+        # Save genre label (i.e., sub-folder name) in the mapping
+        semantic_label = os.path.basename(dirpath)
+        data["mapping"].append(semantic_label)
+        print(f"\nProcessing: {semantic_label}")
 
-                # Process all segments of audio file
-                for d in range(num_segments):
-                    start = samples_per_segment * d
-                    finish = start + samples_per_segment
+        # Process all audio files in genre sub-dir
+        for f in filenames:
+            # Load audio file
+            file_path = os.path.join(dirpath, f)
+            signal, sr = librosa.load(file_path, sr=SAMPLE_RATE)
 
-                    # Extract MFCC
-                    mfcc = librosa.feature.mfcc(y=signal[start:finish],
-                                                sr=sr,
-                                                n_mfcc=num_mfcc,
-                                                n_fft=n_fft,
-                                                hop_length=hop_length)
-                    mfcc = mfcc.T
+            # Process all segments of audio file
+            for d in range(num_segments):
+                start = samples_per_segment * d
+                finish = start + samples_per_segment
 
-                    # Store only MFCC feature with the expected number of vectors
-                    if len(mfcc) == num_mfcc_vectors_per_segment:
-                        data["mfcc"].append(mfcc.tolist())
-                        data["labels"].append(i - 1)
-                        print(f"{file_path}, segment:{d+1}")
+                # Extract MFCC
+                mfcc = librosa.feature.mfcc(y=signal[start:finish],
+                                            sr=sr,
+                                            n_mfcc=num_mfcc,
+                                            n_fft=n_fft,
+                                            hop_length=hop_length)
+                mfcc = mfcc.T
+
+                # Store only MFCC feature with the expected number of vectors
+                if len(mfcc) == num_mfcc_vectors_per_segment:
+                    data["mfcc"].append(mfcc.tolist())
+                    data["labels"].append(i - 1)
+                    print(f"{file_path}, segment:{d+1}")
 
     # Save MFCCs to JSON file
     with open(json_path, "w") as fp:
@@ -106,135 +110,15 @@ def extract_mfcc(dataset_path, json_path, num_mfcc=N_MFCC, n_fft=N_FFT, hop_leng
     return data
 
 
-# ----------------------------------------------------------------
-# Load a json file
-def load_data(json_path):
-    with open(json_path, "r") as fp:
-        data = json.load(fp)
-    return data
+def main():
+    # extract_mfcc_create_json_file(aug_train_data_dir, aug_train_json)
+    # extract_mfcc_create_json_file(train_data_dir, train_json)
+    extract_mfcc_create_json_file(test_data_dir, test_json)
 
-
-def save_mfcc(dataset_path, json_path, num_mfcc=13, n_fft=2048, hop_length=512, num_segments=6):
-
-    # dictionary to store mapping, labels, and MFCCs
-    data = {
-        "mapping": [],
-        "labels": [],
-        "mfcc": []
-    }
-
-    samples_per_segment = int(SAMPLES_PER_AUDIO / num_segments)
-    num_mfcc_vectors_per_segment = math.ceil(samples_per_segment / hop_length)
-
-    # loop through all sub-folders
-    for i, (dirpath, dirnames, filenames) in enumerate(os.walk(dataset_path)):
-
-        # ensure we're processing the sub-folder level
-        if dirpath is not dataset_path:
-
-            # save genre label (i.e., sub-folder name) in the mapping
-            semantic_label = dirpath.split("/")[-1]
-            data["mapping"].append(semantic_label)
-            print(f"\nProcessing: {semantic_label}")
-
-            # process all audio files in genre sub-dir
-            for f in filenames:
-
-                # load audio file
-                file_path = os.path.join(dirpath, f)
-                signal, sample_rate = librosa.load(file_path, sr=SAMPLE_RATE)
-
-                # process all segments of audio file
-                for d in range(num_segments):
-
-                    # calculate start and finish sample for the current segment
-                    start = samples_per_segment * d
-                    finish = start + samples_per_segment
-
-                    # extract mfcc
-                    mfcc = librosa.feature.mfcc(y=signal[start:finish],
-                                                sr=sample_rate,
-                                                n_mfcc=num_mfcc,
-                                                n_fft=n_fft,
-                                                hop_length=hop_length)
-
-                    mfcc = mfcc.T
-
-                    # store only mfcc feature with the expected number of vectors
-                    if len(mfcc) == num_mfcc_vectors_per_segment:
-                        data["mfcc"].append(mfcc.tolist())
-                        data["labels"].append(i-1)
-                        print(f"{file_path}, segment:{d+1}")
-
-    # save MFCCs to json file
-    with open(json_path, "w") as fp:
-        json.dump(data, fp, indent=4)
-
-    # return the data dictionary
-    return data
-
-
-data = save_mfcc(TRAIN_DATASET_PATH, JSON_PATH, num_segments=6)
-
-
-def load_data(data):
-
-    # convert lists to numpy arrays
-    X = np.array(data["mfcc"])
-    y = np.array(data["labels"])
-
-    print("Data successfully loaded!")
-
-    return X, y
-
-
-X, y = load_data(data)
-
-
-
-# Function to prepare dataset
-def prepare_dataset(data_dir, json_path, num_mfcc=13, n_fft=2048, hop_length=512, num_segments=2):
-    data = {
-        "mapping": [],
-        "mfcc": [],
-        "labels": [],
-        "files": []
-    }
-
-    samples_per_segment = int(SAMPLES_PER_TRACK / num_segments)
-    num_mfcc_vectors_per_segment = math.ceil(samples_per_segment / hop_length)
-
-    for i, (dirpath, dirnames, filenames) in enumerate(os.walk(data_dir)):
-        if dirpath is not data_dir:
-            semantic_label = dirpath.split("/")[-1]
-            data["mapping"].append(semantic_label)
-            print("\nProcessing: {}".format(semantic_label))
-
-            for f in filenames:
-                file_path = os.path.join(dirpath, f)
-                signal, sample_rate = librosa.load(file_path, sr=SAMPLE_RATE, duration=TRACK_DURATION)
-
-                if len(signal) >= SAMPLE_RATE:
-                    signal = signal[:SAMPLE_RATE]
-
-                    for d in range(num_segments):
-                        start = samples_per_segment * d
-                        finish = start + samples_per_segment
-
-                        mfcc = librosa.feature.mfcc(y=signal[start:finish], sr=sample_rate, n_mfcc=num_mfcc, n_fft=n_fft, hop_length=hop_length)
-                        mfcc = mfcc.T
-
-                        if len(mfcc) == num_mfcc_vectors_per_segment:
-                            data["mfcc"].append(mfcc.tolist())
-                            data["labels"].append(i-1)
-                            data["files"].append(file_path)
-                            print("{}, segment:{}".format(file_path, d+1))
-
-    with open(json_path, "w") as fp:
-        json.dump(data, fp, indent=4)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    # extract_mfcc_create_json_file(ww_aug_train_data_dir, ww_aug_train_json)
+    # extract_mfcc_create_json_file(ww_train_data_dir, ww_train_json)
+    # extract_mfcc_create_json_file(ww_test_data_dir, ww_test_json)
 
 
 if __name__ == '__main__':
-    # main()
-    ...
+    main()

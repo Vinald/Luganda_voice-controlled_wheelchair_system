@@ -1,6 +1,7 @@
-from packages.utils import tf, np, precision_score, accuracy_score, recall_score, f1_score, plt, sns
+from utils import tf, np, precision_score, accuracy_score, recall_score, f1_score, plt, sns
 
 
+# ---------------------------------------------------------------------------
 # For a TFLite model
 def create_and_save_tflite_model(model, model_path='Spectrogram_model_1.tflite'):
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
@@ -10,6 +11,7 @@ def create_and_save_tflite_model(model, model_path='Spectrogram_model_1.tflite')
     return tflite_model
 
 
+# ---------------------------------------------------------------------------
 # Function to load a saved TFLite model
 def load_and_get_model_details(model_path):
     interpreter = tf.lite.Interpreter(model_path=model_path)
@@ -26,6 +28,7 @@ def load_and_get_model_details(model_path):
     return interpreter, input_shape, output_shape
 
 
+# ---------------------------------------------------------------------------
 def run_and_evaluate_tflite_model(interpreter, test_mel_spec_ds, label_names):
     test_mel_spec_ds = test_mel_spec_ds.unbatch().batch(1)
 
@@ -59,6 +62,7 @@ def run_and_evaluate_tflite_model(interpreter, test_mel_spec_ds, label_names):
     print(f"F1-score:   {f1}")
 
 
+# ---------------------------------------------------------------------------
 # Quantized Model
 def create_quantized_tflite_model(model):
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
@@ -80,6 +84,7 @@ def plot_confusion_matrix(y_true, y_pred, label_names):
     plt.show()
 
 
+# ---------------------------------------------------------------------------
 def evaluate_quantized_tflite_model(interpreter, test_ds, label_names):
     y_true = []
     y_pred = []

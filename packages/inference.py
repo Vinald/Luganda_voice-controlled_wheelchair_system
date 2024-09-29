@@ -1,20 +1,17 @@
 from utils import wave, pyaudio, os, librosa, Audio, display, tf
-from utils import FRAME_LENGTH,  SAMPLE_RATE, CHANNEL, CHUNK_SIZE, RECORDING_DURATION, FRAME_STEP, N_MELS
+from utils import FRAME_LENGTH,  SAMPLE_RATE, FRAME_STEP, N_MELS
 
 
+# ----------------------------------------------------
+# Parameters for recording an audio file for inference
+CHANNEL = 1
+RECORDING_DURATION = 3
+CHUNK_SIZE = 1024
+
+
+# ----------------------------------------------------
 # Get Mel-spectrogram
 def get_mel_spectrogram(waveform, sample_rate=SAMPLE_RATE, n_mels=N_MELS):
-    """
-    Generate a Mel-frequency spectrogram from the given waveform.
-
-    Parameters:
-    waveform (tf.Tensor): A 1D tensor representing the audio waveform.
-    sample_rate (int, optional): The sample rate of the audio waveform. Defaults to SAMPLE_RATE.
-    n_mels (int, optional): The number of Mel bands to generate. Defaults to N_MELS.
-
-    Returns:
-    tf.Tensor: A 4D tensor representing the Mel-frequency spectrogram. The shape is (-1, 124, 128, 1).
-    """
     stft = tf.signal.stft(
         waveform, frame_length=FRAME_LENGTH, frame_step=FRAME_STEP)
     spectrogram = tf.abs(stft)
@@ -30,33 +27,23 @@ def get_mel_spectrogram(waveform, sample_rate=SAMPLE_RATE, n_mels=N_MELS):
     return mel_spectrogram
 
 
+# ----------------------------------------------------
 # Function to get the labels
 def get_label_names_ww():
     label_names = ['gaali', 'no_gaali']
     return label_names
 
 
+# ----------------------------------------------------
 def get_label_names_sic():
     label_names_slice = ['ddyo', 'emabega', 'gaali',
                          'kkono', 'mu maaso', 'unknown', 'yimirira']
     return label_names_slice
 
 
+# ----------------------------------------------------
 # Record Audio
 def record_audio(filename, duration=RECORDING_DURATION, rate=SAMPLE_RATE, channels=CHANNEL, chunk_size=CHUNK_SIZE):
-    """
-    Records an audio file using the PyAudio library.
-
-    Parameters:
-    filename (str): The name of the output audio file.
-    duration (int, optional): The duration of the recording in seconds. Defaults to RECORDING_DURATION.
-    rate (int, optional): The sample rate of the audio. Defaults to SAMPLE_RATE.
-    channels (int, optional): The number of audio channels. Defaults to CHANNEL.
-    chunk_size (int, optional): The size of each chunk of data read from the audio stream. Defaults to CHUNK_SIZE.
-
-    Returns:
-    str: The name of the recorded audio file.
-    """
     audio = pyaudio.PyAudio()
 
     # open stream
@@ -94,17 +81,9 @@ def record_audio(filename, duration=RECORDING_DURATION, rate=SAMPLE_RATE, channe
     return filename
 
 
+# ----------------------------------------------------
 # Function to print audio properties
 def print_audio_properties(file_path):
-    """
-    Prints the properties of an audio file.
-
-    Parameters:
-    file_path (str): The path to the audio file.
-
-    Returns:
-    None. Prints the audio properties to the console.
-    """
     if not os.path.isfile(file_path):
         print(f"File {file_path} does not exist.")
         return
@@ -132,18 +111,8 @@ def print_audio_properties(file_path):
     return
 
 
+# ----------------------------------------------------
 def predict_audio_ww(file_path, model, sample_rate):
-    """
-    Predicts the label of an audio file using a pre-trained model.
-
-    Parameters:
-    file_path (str): The path to the audio file to be predicted.
-    model (tf.keras.Model): The pre-trained model for audio classification.
-    sample_rate (int): The sample rate of the audio file.
-
-    Returns:
-    tuple: A tuple containing the predicted label and its corresponding confidence score.
-    """
     x = tf.io.read_file(str(file_path))
     x, _ = tf.audio.decode_wav(x, desired_channels=1, desired_samples=16000)
     x = tf.squeeze(x, axis=-1)
@@ -165,18 +134,8 @@ def predict_audio_ww(file_path, model, sample_rate):
     return predicted_label, tf.nn.softmax(predictions[0])[predicted_label_index]
 
 
+# ----------------------------------------------------
 def predict_audio_sic(file_path, model, sample_rate):
-    """
-    Predicts the label of an audio file using a pre-trained model.
-
-    Parameters:
-    file_path (str): The path to the audio file to be predicted.
-    model (tf.keras.Model): The pre-trained model for audio classification.
-    sample_rate (int): The sample rate of the audio file.
-
-    Returns:
-    tuple: A tuple containing the predicted label and its corresponding confidence score.
-    """
     x = tf.io.read_file(str(file_path))
     x, _ = tf.audio.decode_wav(x, desired_channels=1, desired_samples=16000)
     x = tf.squeeze(x, axis=-1)
