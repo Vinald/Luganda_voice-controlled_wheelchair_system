@@ -1,10 +1,10 @@
-from utils import os, tf, layers, models, EarlyStopping, plt, sns
-from utils import f1_score, precision_score, recall_score
+from packages.utils import os, tf, layers, models, EarlyStopping, plt, sns
+from packages.utils import f1_score, precision_score, recall_score
 
 # ----------------------------------------------------
 # Parameters for model compiling and training
-EPOCHS = 5
-PATIENCE = 10
+EPOCHS = 30
+PATIENCE = 30
 LEARNING_RATE = 0.001
 MIN_LR = 1e-6
 
@@ -73,7 +73,7 @@ def model3(input_shape, num_labels):
 # --------------------------------------------------------------------
 optimizer = tf.keras.optimizers.Adam(learning_rate=LEARNING_RATE)
 loss_sic = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
-loss_ww = tf.keras.losses.BinaryCategoricalCrossentropy(from_logits=False)
+loss_ww = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
 
 
 # Function to compile and train the model

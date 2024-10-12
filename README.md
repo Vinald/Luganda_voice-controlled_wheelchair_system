@@ -4,9 +4,13 @@ This project is a voice-controlled wheelchair system that uses Luganda language 
 
 ## How to run the code
 
-- `Create a virtual environment`
-- `Run the requirements.txt file`
-- `Run the mfcc_extraction file in packages to extract mfccs and create json files`
+1. `Create a virtual environment`
+2. `Run the requirements.txt file`
+3. `Depending on the audio features you plan to use`
+
+    - `If Mel-spectrograms skip step 4, but if using MFCC run step 4`
+
+4. `Run the mfcc_extraction file in packages to extract mfccs and create json files`
 
 ### MFCC extraction
 
